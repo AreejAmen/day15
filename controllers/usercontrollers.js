@@ -28,7 +28,6 @@ const getusers = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 const getuserByID = async (req, res) => {
   try {
     let token = req.session.token;
@@ -86,11 +85,9 @@ const deleteuser = async (req, res) => {
     let founduser = await usersModel.findOne({
       _id: id,
     });
-
     if (!founduser) {
       return res.status(400).json({ message: "user not found!" });
     }
-
     if (
       plainToken.role == "user" &&
       plainToken.username != founduser.username
@@ -127,40 +124,22 @@ const adduser = async (req, res) => {
       return res.status(401).json({ message: "invalid token!" });
     }
     let {
-      username,
-      password,
-      email,
-      firstName,
-      lastName,
-      address,
-      phoneNumber,
-    } = req.body;
-
-    if (
-      !username ||
-      !password ||
-      !email ||
-      !firstName ||
-      !lastName ||
-      !address ||
-      !phoneNumber
+      username, password, email, firstName, lastName, address, phoneNumber} = req.body;
+    if (!username ||!password ||!email ||!firstName ||!lastName ||!address ||!phoneNumber
     ) {
       return res.status(400).json({ message: "all fields are required!" });
     }
-
     if (plainToken.role == "user" && username != plainToken.username) {
       return res.status(403).json({
         message: "forbidden, you can't add another user than you!",
       });
     }
-
     let foundUser = await usersModel.findOne({
       $or: [{ email }, { username }],
     });
     if (foundUser) {
       return res.status(400).json({ message: "emailOrUsername already used!" });
     }
-
     let hashedPassword = bcrypt.hashSync(password, 10);
     let newUser = new usersModel({
       username,
@@ -193,42 +172,22 @@ const edituser = async (req, res) => {
       return res.status(401).json({ message: "invalid token!" });
     }
     let id = req.params.id;
-    let {
-      username,
-      password,
-      email,
-      firstName,
-      lastName,
-      address,
-      phoneNumber,
-    } = req.body;
+    let {username, password, email, firstName, lastName, address, phoneNumber,} = req.body;
 
-    if (
-      !username ||
-      !password ||
-      !email ||
-      !firstName ||
-      !lastName ||
-      !address ||
-      !phoneNumber
-    ) {
+    if (!username ||!password ||!email ||!firstName ||!lastName ||!address ||!phoneNumber) {
       return res.status(400).json({ message: "all fields are required!" });
     }
-
     if (plainToken.role == "user" && username != plainToken.username) {
       return res.status(403).json({
         message: "forbidden, you can't edit another user than you!",
       });
     }
-
     let founduser = await usersModel.findOne({
       _id: id,
     });
-
     if (!founduser) {
       return res.status(400).json({ message: "user not found!" });
     }
-
     let hashedPassword = bcrypt.hashSync(password, 10);
     let updateduser = await usersModel.findByIdAndUpdate(
       { _id: id },
@@ -251,7 +210,6 @@ const edituser = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 module.exports = {
   getusers,
   deleteuser,

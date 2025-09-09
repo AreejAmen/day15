@@ -41,7 +41,7 @@ connectDB();
 
 mongoose.connection.once('connected',()=>{
     app.listen(process.env.PORT,()=>{
-        console.log("express server running on port "+process.env.PORT);
+        console.log("server running on port "+process.env.PORT);
     })
 });
 

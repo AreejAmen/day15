@@ -35,23 +35,19 @@ const getStudentByID = async (req, res) => {
         .status(401)
         .json({ message: "sorry, you're not authenticated, login first!" });
     }
-    
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       return res.status(401).json({ message: "invalid token!" });
     }
-
     let id = req.params.id;
     let foundStudent = await studentsModel.findOne({
       _id: id,
     });
-
     if (!foundStudent) {
       return res.status(400).json({ message: "student not found!" });
     }
-
     if (
       plainToken.role == "user" &&
       plainToken.username != foundStudent.username
@@ -60,7 +56,6 @@ const getStudentByID = async (req, res) => {
         .status(403)
         .json({ message: "forbidden, you can access only your own profile!" });
     }
-
     return res.json({ student: foundStudent });
   } catch (err) {
     res.status(500).json({ message: "internal server error!", error: err });
@@ -90,7 +85,6 @@ const deletestudent = async (req, res) => {
     if (!foundStudent) {
       return res.status(400).json({ message: "student not found!" });
     }
-
     if (
       plainToken.role == "user" &&
       plainToken.username != foundStudent.username
@@ -108,7 +102,6 @@ const deletestudent = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 const addstudent = async (req, res) => {
   try {
     let token = req.session.token;
@@ -207,7 +200,6 @@ const editstudent = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 module.exports = {
   getStudents,
   deletestudent,
