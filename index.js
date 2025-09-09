@@ -9,7 +9,7 @@ require('dotenv').config({path:path.join(__dirname, ".env")});
 
 
 const mongoose=require('mongoose');
-const connectDB= require('./config/connectDB');
+const {connectDB}= require('./config/connectDB');
 
 
 const authRouter=require("./router/authRouter");
@@ -39,7 +39,7 @@ app.use("/students", studentsRouter);
 
 connectDB();
 
-mongoose.connection.nce('connected',()=>{
+mongoose.connection.once('connected',()=>{
     app.listen(process.env.PORT,()=>{
         console.log("express server running on port "+process.env.PORT);
     })

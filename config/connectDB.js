@@ -3,13 +3,13 @@ const env = require('dotenv')
 const path = require('path');
 env.config(({ path: path.join(__dirname,'../.env') }))
 require("dotenv").config({ path: path.join(__dirname,'../.env') });
-const connectDb=async()=>{
+const connectDB=async()=>{
     try{
        await mongoose.connect(process.env.DATABASE_URL);
        console.log("conect database")
     }
     catch(err){
-       console.error("erroorr",error)
+       console.error("erroorr",err)
     }
 }
-module.exports={connectDb}
+module.exports={connectDB}
