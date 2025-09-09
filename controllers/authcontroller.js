@@ -10,17 +10,17 @@ const login = async (req, res) => {
     if (!emailOrUsername || !password) {
       return res
         .status(400)
-        .json({ message: "emailOrUsername and password are required!" });
+        .json({ message: "email or username and password are required" });
     }
     let foundUser = await usersModel.findOne({
       $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
     });
     if (!foundUser) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(400).json({ message: "user not found" });
     }
     const checkPassword = bcrypt.compareSync(password, foundUser.password);
     if (!checkPassword) {
-      return res.status(400).json({ message: "invalid password!" });
+      return res.status(400).json({ message: "invalid password" });
     }
     let token = jwt.sign(
       { username: foundUser.username, role: foundUser.role },
@@ -28,9 +28,9 @@ const login = async (req, res) => {
       { expiresIn: "1m" }
     );
     req.session.token = token;
-    return res.json({ message: "successful login!" });
+    return res.json({ message: "successful logig" });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 
@@ -40,7 +40,7 @@ const register = async (req, res) => {
       username, password, email, firstName, lastName, address, phoneNumber, role,} = req.body;
     if (
       !username ||!password ||!email ||!firstName ||!lastName ||!address ||!phoneNumber) {
-      return res.status(400).json({ message: "all fields are required!" });
+      return res.status(400).json({ message: "all fields are required" });
     }
     if (!role) {
       role = "user";
@@ -49,19 +49,10 @@ const register = async (req, res) => {
       $or: [{ email }, { username }],
     });
     if (foundUser) {
-      return res.status(400).json({ message: "emailOrUsername already used!" });
+      return res.status(400).json({ message: "email or username already used" });
     }
     const hashedPassword = bcrypt.hashSync(password, 10);
-    let newUser = new usersModel({
-      username,
-      password: hashedPassword,
-      email,
-      firstName,
-      lastName,
-      address,
-      phoneNumber,
-      role,
-    });
+    let newUser = new usersModel({username, password: hashedPassword, email, firstName, lastName, address, phoneNumber,role});
     await newUser.save();
     let token = jwt.sign(
       { username: newUser.username, role: newUser.role },
@@ -74,7 +65,6 @@ const register = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 const logout = async (req, res) => {
   try {
     req.session.destroy((err) => {
@@ -90,7 +80,6 @@ const logout = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 const forgotpassword = async (req, res) => {
   try {
     const email = req.body.email;
@@ -133,7 +122,6 @@ const sendotp = async (req, res) => {
     res.status(500).json({ message: "internal server error!", error: err });
   }
 };
-
 module.exports = { 
     login,
     logout,

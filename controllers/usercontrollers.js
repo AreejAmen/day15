@@ -11,21 +11,21 @@ const getusers = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first!" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     if (plainToken.role == "user") {
-      return res.status(403).json({ message: "forbidden, admin only!" });
+      return res.status(403).json({ message: "admin only" });
     }
     let users = await usersModel.find();
     res.json({ users });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 const getuserByID = async (req, res) => {
@@ -34,13 +34,13 @@ const getuserByID = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken=jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
     let founduser = await usersModel.findOne({
@@ -48,7 +48,7 @@ const getuserByID = async (req, res) => {
     });
 
     if (!founduser) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(400).json({ message: "user not found" });
     }
 
     if (
@@ -57,12 +57,12 @@ const getuserByID = async (req, res) => {
     ) {
       return res
         .status(403)
-        .json({ message: "forbidden, you can access only your own profile!" });
+        .json({ message: "you can access only to your profile" });
     }
 
     return res.json({ user: founduser });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 
@@ -72,13 +72,13 @@ const deleteuser = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
 
@@ -86,7 +86,7 @@ const deleteuser = async (req, res) => {
       _id: id,
     });
     if (!founduser) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(400).json({ message: "user not found" });
     }
     if (
       plainToken.role == "user" &&
@@ -94,126 +94,109 @@ const deleteuser = async (req, res) => {
     ) {
       return res
         .status(403)
-        .json({ message: "forbidden, you can delete only your own profile!" });
+        .json({ message: "delete only your profile" });
     }
     let deleteduser = await usersModel.findByIdAndDelete({ _id: id });
     if (deleteduser.role == "user") {
       await studentsModel.deleteOne({ username: deleteduser.username });
     }
     res.json({
-      message: "user with id " + id + " deleted successfully!",
+      message: "user with id " + id + " deleted successfully",
       deleteduser,
     });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
-
 const adduser = async (req, res) => {
   try {
     let token = req.session.token;
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let {
       username, password, email, firstName, lastName, address, phoneNumber} = req.body;
     if (!username ||!password ||!email ||!firstName ||!lastName ||!address ||!phoneNumber
     ) {
-      return res.status(400).json({ message: "all fields are required!" });
+      return res.status(400).json({ message: "all fields are required" });
     }
     if (plainToken.role == "user" && username != plainToken.username) {
       return res.status(403).json({
-        message: "forbidden, you can't add another user than you!",
+        message: "can't add another user than you",
       });
     }
     let foundUser = await usersModel.findOne({
       $or: [{ email }, { username }],
     });
     if (foundUser) {
-      return res.status(400).json({ message: "emailOrUsername already used!" });
+      return res.status(400).json({ message: "email or username already used" });
     }
     let hashedPassword = bcrypt.hashSync(password, 10);
-    let newUser = new usersModel({
-      username,
-      password: hashedPassword,
-      email,
-      firstName,
-      lastName,
-      address,
-      phoneNumber,
+    let newUser = new usersModel({username, password: hashedPassword, email, firstName,lastName, address, phoneNumber,
     });
     await newUser.save();
-    res.json({ message: "user added successfully!", newUser });
+    res.json({ message: "user added successfully", newUser });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
-
 const edituser = async (req, res) => {
   try {
     let token = req.session.token;
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
     let {username, password, email, firstName, lastName, address, phoneNumber,} = req.body;
 
     if (!username ||!password ||!email ||!firstName ||!lastName ||!address ||!phoneNumber) {
-      return res.status(400).json({ message: "all fields are required!" });
+      return res.status(400).json({ message: "all fields are required" });
     }
     if (plainToken.role == "user" && username != plainToken.username) {
       return res.status(403).json({
-        message: "forbidden, you can't edit another user than you!",
+        message: "can't edit another user than you",
       });
     }
     let founduser = await usersModel.findOne({
       _id: id,
     });
     if (!founduser) {
-      return res.status(400).json({ message: "user not found!" });
+      return res.status(400).json({ message: "user not found" });
     }
     let hashedPassword = bcrypt.hashSync(password, 10);
     let updateduser = await usersModel.findByIdAndUpdate(
       { _id: id },
-      {
-        username,
-        password: hashedPassword,
-        email,
-        firstName,
-        lastName,
-        address,
-        phoneNumber,
-      },
+      {username, password: hashedPassword, email, firstName, lastName, address, phoneNumber,},
       { new: true }
     );
     res.json({
-      message: "user with id " + id + " edited successfully!",
+      message: "user with id " + id + " edited successfully",
       updateduser,
     });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 module.exports = {
-  getusers,
-  deleteuser,
   getuserByID,
+  getusers,
   adduser,
   edituser,
+  deleteuser,
 };

@@ -5,7 +5,8 @@ const studentsSchema = new mongoose.Schema({
     type: String,
      required: true,
       unique: true },
-  courses:[{name:{type:String, required:true}, creditHours:{type:Number, required:true}}],
+   courses:[{name:{type:String, required:true},
+     creditHours:{type:Number, required:true}}],
   state:{type:String}
 });
 

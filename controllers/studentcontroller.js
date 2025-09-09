@@ -9,44 +9,43 @@ const getStudents = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     if (plainToken.role == "user") {
-      return res.status(403).json({ message: "forbidden, admin only!" });
+      return res.status(403).json({ message: " admin only!" });
     }
     let students = await studentsModel.find();
     res.json({ students });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
-
 const getStudentByID = async (req, res) => {
   try {
     let token = req.session.token;
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
     let foundStudent = await studentsModel.findOne({
       _id: id,
     });
     if (!foundStudent) {
-      return res.status(400).json({ message: "student not found!" });
+      return res.status(400).json({ message: "student not found" });
     }
     if (
       plainToken.role == "user" &&
@@ -54,11 +53,11 @@ const getStudentByID = async (req, res) => {
     ) {
       return res
         .status(403)
-        .json({ message: "forbidden, you can access only your own profile!" });
+        .json({ message: " you can access only your profile" });
     }
     return res.json({ student: foundStudent });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 
@@ -68,13 +67,13 @@ const deletestudent = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
 
@@ -83,7 +82,7 @@ const deletestudent = async (req, res) => {
     });
 
     if (!foundStudent) {
-      return res.status(400).json({ message: "student not found!" });
+      return res.status(400).json({ message: "student not found" });
     }
     if (
       plainToken.role == "user" &&
@@ -91,15 +90,15 @@ const deletestudent = async (req, res) => {
     ) {
       return res
         .status(403)
-        .json({ message: "forbidden, you can delete only your own profile!" });
+        .json({ message: "you can delete only your profile" });
     }
     let deletedStudent = await studentsModel.findByIdAndDelete({ _id: id });
     res.json({
-      message: "student with id " + id + " deleted successfully!",
+      message: "student with id " + id + " deleted successfully",
       deletedStudent,
     });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 const addstudent = async (req, res) => {
@@ -108,57 +107,54 @@ const addstudent = async (req, res) => {
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let { username, courses, state } = req.body;
     if (plainToken.role == "user") {
       if (username && username != plainToken.username) {
         return res.status(403).json({
-          message: "forbidden, you can't add another student than you!",
+          message: "can't add another student than you",
         });
       } else if (!username) username = plainToken.username;
       if (!courses || !state) {
         return res
           .status(400)
-          .json({ message: "student courses and state are required!" });
+          .json({ message: "student courses and state are required" });
       }
     }
     if (!username || !courses || !state) {
-      return res.status(400).json({ message: "all fields are required!" });
+      return res.status(400).json({ message: "all fields are required" });
     }
-
     let foundStudent = await studentsModel.findOne({ username });
     if (foundStudent) {
-      return res.json({ message: "student already exist!" });
+      return res.json({ message: "student already exist" });
     }
-
     let newStudent = new studentsModel({ username, courses, state });
     await newStudent.save();
-    res.json({ message: "student added successfully!", newStudent });
+    res.json({ message: "student added successfully", newStudent });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
-
 const editstudent = async (req, res) => {
   try {
     let token = req.session.token;
     if (!token) {
       return res
         .status(401)
-        .json({ message: "sorry, you're not authenticated, login first!" });
+        .json({ message: "unauthenticated, login first" });
     }
     let plainToken;
     try {
       plainToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res.status(401).json({ message: "invalid token!" });
+      return res.status(401).json({ message: "invalid token" });
     }
     let id = req.params.id;
     let { username, courses, state } = req.body;
@@ -166,7 +162,7 @@ const editstudent = async (req, res) => {
     if (plainToken.role == "user") {
       if (username && username != plainToken.username) {
         return res.status(403).json({
-          message: "forbidden, you can't edit another student than you!",
+          message: "can't edit another student than you",
         });
       } else if (!username) username = plainToken.username;
       if (!courses || !state) {
@@ -176,15 +172,13 @@ const editstudent = async (req, res) => {
       }
     }
     if (!username || !courses || !state) {
-      return res.status(400).json({ message: "all fields are required!" });
+      return res.status(400).json({ message: "all fields are required" });
     }
-
     let foundStudent = await studentsModel.findOne({
       _id: id,
     });
-
     if (!foundStudent) {
-      return res.status(400).json({ message: "student not found!" });
+      return res.status(400).json({ message: "student not found" });
     }
 
     let updatedStudent = await studentsModel.findByIdAndUpdate(
@@ -193,11 +187,11 @@ const editstudent = async (req, res) => {
       { new: true }
     );
     res.json({
-      message: "student with id " + id + " editd successfully!",
+      message: "student with id " + id + " editd successfully",
       updatedStudent,
     });
   } catch (err) {
-    res.status(500).json({ message: "internal server error!", error: err });
+    res.status(500).json({ message: "internal server error", error: err });
   }
 };
 module.exports = {
